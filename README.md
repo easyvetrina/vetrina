@@ -6,17 +6,34 @@
 
 ## 📋 Panoramica
 
-Un **unico sito web** (single codebase, single deploy) che serve infiniti negozi. Ogni negozio ha la sua URL e il sito si configura dinamicamente leggendo i dati dal database PostgreSQL su DigitalOcean.
+Un **unico sito web** (single codebase, single deploy) che serve infiniti negozi. Ogni negozio ha la sua URL e il sito si configura dinamicamente leggendo i dati dal database PostgreSQL su DigitalOcean. Nessun sito viene creato manualmente: il negoziante personalizza tutto dal suo pannello admin.
 
 ### Due modalità di funzionamento
 
 | | **Modalità A — Prenoty** | **Modalità B — Standalone** |
 |---|---|---|
 | **Costo** | Gratis (incluso nell'abbonamento Prenoty) | A pagamento (piani Base €19/Pro €29) |
-| **Dati** | Letti dal DB Prenoty esistente | Creati ex novo dall'admin |
-| **Clienti** | Già registrati, login diretto | Registrazione da zero |
-| **Pannello Admin** | Completo (fedeltà + prenotazioni + calendario) | Solo funzionalità carta fedeltà |
+| **Dati negozio** | Letti dal DB Prenoty esistente (servizi, operatori, orari, contatti) | Inseriti manualmente dall'admin |
+| **Clienti** | Già registrati nel DB Prenoty, login diretto senza re-registrazione | Registrazione da zero |
+| **Pannello Admin** | Completo (fedeltà + prenotazioni + calendario + statistiche Prenoty) | Solo funzionalità carta fedeltà |
 | **Passaggio** | — | Upgrade fluido a Prenoty in qualsiasi momento |
+
+### Flusso multi-tenant
+
+1. Il negozio accede alla propria URL (es. `cartafedelta.it/barbiere-mario`)
+2. Il backend legge lo `slug` dall'URL → carica config dal DB PostgreSQL
+3. Il sito si configura dinamicamente (logo, colori, servizi, dati)
+4. Se `is_prenoty=true`: i dati vengono letti dal DB Prenoty (read-only), i clienti esistono già
+5. Se `is_prenoty=false`: i dati sono gestiti localmente, i clienti si registrano da zero
+
+### Upgrade Standalone → Prenoty
+
+Quando un negozio standalone si abbona a Prenoty:
+- Il flag `is_prenoty` viene impostato a `true` e viene collegato il `prenoty_shop_id`
+- I dati negozio (servizi, operatori, orari) vengono sincronizzati dal DB Prenoty
+- I clienti esistenti vengono **unificati per numero di telefono** con quelli già presenti in Prenoty
+- Il pannello admin si aggiorna **live** mostrando le sezioni Prenoty (calendario, prenotazioni, statistiche)
+- Nessuna perdita di dati: timbri, premi e livelli vengono mantenuti
 
 ---
 
@@ -39,27 +56,31 @@ Un **unico sito web** (single codebase, single deploy) che serve infiniti negozi
 
 ## ✨ Funzionalità
 
-### Sito Vetrina (pubblico)
-- Hero section con CTA
-- Chi Siamo
+### Sito Vetrina (pubblico) — ✅ prototipo completato
+- Hero section con CTA e stats animate
+- Come Funziona (3 step: registrati → timbra → premia)
+- Chi Siamo con features grid
 - Servizi e prezzi
 - Team / Operatori
-- Recensioni clienti (con approvazione admin)
+- Recensioni clienti (con approvazione admin) + riepilogo media stelle e barre distribuzione
 - Orari di apertura (evidenzia giorno corrente)
 - Contatti
+- Sezione Pricing (Base €19 / Pro €29 / Prenoty €49)
 - Bottone "Prenota Ora" (solo negozi Prenoty)
 - Multi-lingua IT/EN (estensibile)
+- SEO meta tags (Open Graph, Twitter Card, favicon)
+- Accessibilità (skip-link, aria-labels)
 
-### Area Cliente
+### Area Cliente (integrata nel sito vetrina) — ✅ prototipo completato
 - QR Code personale per timbratura rapida al banco
 - Carta timbri digitale con animazioni
 - Livelli fedeltà Bronze / Silver / Gold
 - Storico premi con livello associato
 - Form per lasciare recensione (post-premio)
-- Google Wallet integration
-- Notifiche push via Firebase FCM
+- Google Wallet integration (placeholder)
+- Notifiche push (placeholder)
 
-### Pannello Admin (✅ prototipo completato)
+### Pannello Admin — ✅ prototipo completato
 - Dashboard Analytics — 4 KPI animate con change %, grafici timbri settimanali, donut stato carte, clienti mensili, distribuzione livelli
 - Gestione Clienti — tabella con barra timbri visuale, badge livello, ricerca, timbra/premio con popup conferma
 - QR Scanner — viewport con scan line animata, corner markers, scansione istantanea
@@ -67,9 +88,10 @@ Un **unico sito web** (single codebase, single deploy) che serve infiniti negozi
 - Notifiche Push — invio manuale + toggle notifiche automatiche
 - Impostazioni complete — 5 sezioni: info attività, colori brand live, carta fedeltà, livelli, sicurezza
 - Sezione Prenoty (solo abbonati) — calendario, prenotazioni, statistiche
+- **Logica Prenoty/Standalone**: il pannello mostra/nasconde le sezioni Prenoty in base allo stato del negozio
 
-### Personalizzazione Autonoma
-Ogni negoziante personalizza in autonomia dal pannello admin:
+### Personalizzazione Autonoma (stessa codebase per tutti)
+Ogni negoziante personalizza in autonomia dal pannello admin — **nessun sito viene creato manualmente**:
 - Logo e foto del negozio
 - Colori brand (primario, accento) con color picker live
 - Nome, tipo e descrizione attività
@@ -78,6 +100,7 @@ Ogni negoziante personalizza in autonomia dal pannello admin:
 - Orari di apertura
 - Contatti
 - Impostazioni carta fedeltà e livelli
+- Per negozi Prenoty: questi dati vengono pre-popolati dal DB Prenoty
 
 ### Super Admin Panel
 - Metriche piattaforma globali (negozi, abbonati, MRR, utenti)
@@ -111,13 +134,13 @@ Ogni negoziante personalizza in autonomia dal pannello admin:
 carta-fedelta-2.0/
 ├── README.md                        # Questo file
 ├── TODO.md                          # Piano di sviluppo dettagliato (12 fasi)
-├── prototypes/
-│   ├── admin-panel-v2.html          # ✅ Pannello admin (stile Shadcn, funzionante)
-│   └── carta-fedelta-2.0-full.html  # Prototipo completo v1 (da rifare con nuovo stile)
+├── sito-vetrina.html                # ✅ Sito vetrina + area cliente + admin semplificato
+├── admin-panel-v2.html              # ✅ Pannello admin completo (stile Shadcn)
 ├── api/                             # Backend API (da implementare — Fase 1)
 │   ├── server.js
 │   ├── routes/
 │   ├── middleware/
+│   │   └── resolveShop.js           # Middleware multi-tenant (slug → shop config)
 │   ├── db/
 │   │   ├── schema.sql
 │   │   └── migrations/
@@ -159,10 +182,9 @@ carta-fedelta-2.0/
 | 12 | Polish e ottimizzazioni | ⬜ Da fare |
 
 ### Prototipi Frontend completati:
-- ✅ Admin Panel v2 (stile Shadcn — `prototypes/admin-panel-v2.html`)
-- 🔄 Sito Vetrina (da rifare con stesso stile dell'admin)
-- 🔄 Area Cliente (da rifare con stesso stile)
-- 🔄 Super Admin Panel (da rifare con stesso stile)
+- ✅ Admin Panel v2 — `admin-panel-v2.html`
+- ✅ Sito Vetrina + Area Cliente — `sito-vetrina.html`
+- 🔄 Super Admin Panel — da creare
 
 ---
 

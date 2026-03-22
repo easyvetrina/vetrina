@@ -8,21 +8,26 @@
 ## ⚡ Stato Attuale
 
 ### Completato
-- ✅ Admin Panel v2 — prototipo frontend completo (`prototypes/admin-panel-v2.html`)
+- ✅ Admin Panel v2 — prototipo frontend completo (`admin-panel-v2.html`)
   - Dashboard con 4 KPI, 4 grafici (barre + donut)
   - Gestione clienti con tabella, timbri, livelli, azioni
   - QR Scanner con viewport animato
   - Recensioni con filtri e approvazione
   - Notifiche push (invio manuale + toggle automatiche)
   - Impostazioni complete (5 sezioni)
-  - Sezione Prenoty (nascondibile)
+  - Sezione Prenoty (nascondibile in base a `is_prenoty`)
   - Design: stile TailAdmin/Shadcn, dark mode, Geist font, animazioni stagger
 
+- ✅ Sito Vetrina + Area Cliente — prototipo frontend completo (`sito-vetrina.html`)
+  - Hero, Come Funziona, Chi Siamo, Servizi, Team, Recensioni (con riepilogo stelle), Orari, Contatti, Pricing
+  - Area Cliente: QR code, carta timbri, livelli, storico premi, recensioni
+  - Admin semplificato: tabella clienti, timbra/premio con conferma
+  - Auth modal (login/registrazione/admin), i18n IT/EN completo
+  - SEO meta tags, accessibilità (skip-link, aria-labels), animazioni stagger
+  - Loader, toast, confetti, background effects
+
 ### Da completare (frontend)
-- 🔄 Sito Vetrina — da rifare con lo stesso stile Shadcn dell'admin
-- 🔄 Area Cliente — QR code, carta timbri, livelli, recensioni (stile Shadcn)
 - 🔄 Super Admin Panel — metriche piattaforma, tabella negozi, pricing (stile Shadcn)
-- 🔄 Unificare tutto in un unico file o modularizzare in file separati
 
 ### Decisioni di design prese
 - Stile: TailAdmin/Shadcn (clean, sharp, enterprise) + tocchi premium (blur, ombre morbide)
@@ -30,11 +35,16 @@
 - Tema: dark mode, gerarchia superfici, Geist + Geist Mono
 - Colori: indigo primario, palette accenti per KPI
 
+### Decisioni architetturali
+- DB: PostgreSQL su DigitalOcean (condiviso con Prenoty, accesso read-only sulle tabelle Prenoty)
+- Multi-tenant: unica codebase, slug nell'URL identifica il negozio
+- Prenoty/Standalone: flag `is_prenoty` determina la fonte dati e le sezioni admin visibili
+- Upgrade fluido: standalone → Prenoty con unificazione clienti per telefono
+
 ### Domande architetturali ancora aperte
 - Backend framework (Node/Express? Dart server? Python/FastAPI?)
-- Come Prenoty espone i dati (API esistente? accesso diretto DB?)
-- Strategia URL multi-tenant (sottodominio? path? dominio custom?)
-- Deploy DigitalOcean (App Platform? Droplet?)
+- Strategia URL multi-tenant (sottodominio `mario.cartafedelta.it`? path `cartafedelta.it/mario`?)
+- Deploy DigitalOcean (App Platform? Droplet + Nginx?)
 
 ---
 
@@ -165,11 +175,15 @@ clients (
 - [ ] `GET /api/client/me/rewards`
 
 ### 1.6 API — Integrazione Prenoty
-- [ ] Middleware detect `is_prenoty`
-- [ ] Mappatura tabelle Prenoty → tabelle locali
-- [ ] Sync/read-through dati Prenoty
-- [ ] Endpoint attivazione integrazione
-- [ ] Unificazione clienti (match per telefono)
+- [ ] Middleware detect `is_prenoty` — controlla il flag nel DB e determina la fonte dati
+- [ ] Mappatura tabelle Prenoty → tabelle locali (servizi, operatori, orari, contatti, clienti)
+- [ ] Read-through: se `is_prenoty=true`, le API leggono dal DB Prenoty invece che dalle tabelle locali
+- [ ] Clienti Prenoty: login diretto senza re-registrazione (i clienti esistono già a DB)
+- [ ] Dati negozio Prenoty: il pannello admin pre-popola automaticamente (no re-inserimento manuale)
+- [ ] Endpoint upgrade `POST /api/admin/activate-prenoty` — collega negozio standalone a Prenoty
+- [ ] Unificazione clienti al momento dell'upgrade (match per numero di telefono, merge timbri/premi)
+- [ ] Pannello admin si aggiorna live: mostra sezioni Prenoty (calendario, prenotazioni, stats) dopo upgrade
+- [ ] Nessuna perdita dati: timbri, premi e livelli del periodo standalone vengono mantenuti
 
 ### 1.7 Frontend — Collegare al backend
 - [ ] Refactor frontend per fetch API
@@ -300,16 +314,18 @@ clients (
 
 1. **Parti dalla Fase 0** — definisci architettura e schema DB
 2. **Una fase alla volta** — ogni fase dipende dalla precedente
-3. **I file in `prototypes/` sono riferimento visivo** — da usare per ricostruire il frontend collegato alle API
+3. **I prototipi sono nella root** — `sito-vetrina.html` e `admin-panel-v2.html` sono il riferimento visivo
 4. **Il DB PostgreSQL è condiviso con Prenoty** — solo lettura su tabelle Prenoty
-5. **Testa in locale** prima di deployare
-6. **Lo stile è Shadcn/TailAdmin** — mantieni coerenza con `admin-panel-v2.html`
+5. **Logica Prenoty/Standalone è il cuore** — ogni endpoint deve sapere se il negozio è Prenoty o standalone
+6. **Upgrade fluido** — il passaggio standalone → Prenoty non deve perdere dati (unificazione clienti per telefono)
+7. **Testa in locale** prima di deployare
+8. **Lo stile è Shadcn/TailAdmin** — mantieni coerenza con `admin-panel-v2.html`
 
 ### Prossimi passi immediati
-1. Rispondere alle domande architetturali aperte (backend, URL, deploy)
-2. Rifare sito vetrina + area cliente + super admin con stesso stile dell'admin
-3. Scrivere schema.sql completo
-4. Iniziare backend API
+1. Decidere domande architetturali aperte (backend framework, strategia URL, deploy)
+2. Scrivere schema.sql completo (incluse tabelle per unificazione Prenoty)
+3. Iniziare backend API (Fase 1)
+4. Super Admin Panel frontend
 
 ### Comandi utili
 ```bash
