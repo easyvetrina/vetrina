@@ -12,11 +12,28 @@ Un **unico sito web** (single codebase, single deploy) che serve infiniti negozi
 
 | | **Modalità A — Prenoty** | **Modalità B — Standalone** |
 |---|---|---|
-| **Costo** | Gratis (incluso nell'abbonamento Prenoty) | A pagamento (piani Base/Pro) |
+| **Costo** | Gratis (incluso nell'abbonamento Prenoty) | A pagamento (piani Base €19/Pro €29) |
 | **Dati** | Letti dal DB Prenoty esistente | Creati ex novo dall'admin |
 | **Clienti** | Già registrati, login diretto | Registrazione da zero |
 | **Pannello Admin** | Completo (fedeltà + prenotazioni + calendario) | Solo funzionalità carta fedeltà |
 | **Passaggio** | — | Upgrade fluido a Prenoty in qualsiasi momento |
+
+---
+
+## 🎨 Design Direction
+
+**Stile: TailAdmin/Shadcn** — Clean, sharp, enterprise con tocchi premium.
+
+- **Ispirazione**: TailAdmin, Shadcn UI, Linear, Vercel Dashboard
+- **Tema**: Dark mode con gerarchia superfici (bg-0 → bg-5)
+- **Font**: Geist (display + body) + Geist Mono (dati)
+- **Colori**: Indigo (#6366F1) primario, palette accenti per KPI (green, yellow, blue)
+- **Card**: Bordi sottili, hover con lift + shadow, transizioni smooth
+- **Sidebar**: Sezioni organizzate, indicatore attivo con barra indigo, badge contatori
+- **Tocchi premium dagli altri stili**: micro-animazioni e card con leggero blur (da Horizon), ombre morbide e angoli arrotondati (da Soft Gradient)
+- **Animazioni**: Stagger entrata KPI, barre grafici animate, fade-up cambio pagina, micro-interazioni hover, confetti al completamento carta, shimmer skeleton loading, scan line QR scanner
+
+**Perché questo stile**: Essendo white-label per attività diverse, il design neutro ma premium permette a ogni negoziante di personalizzare colori e logo senza che il risultato stoni. Scalabile quando si aggiungono funzionalità Prenoty.
 
 ---
 
@@ -30,38 +47,37 @@ Un **unico sito web** (single codebase, single deploy) che serve infiniti negozi
 - Recensioni clienti (con approvazione admin)
 - Orari di apertura (evidenzia giorno corrente)
 - Contatti
-- Bottone **"Prenota Ora"** (solo negozi Prenoty)
+- Bottone "Prenota Ora" (solo negozi Prenoty)
 - Multi-lingua IT/EN (estensibile)
 
 ### Area Cliente
-- **QR Code personale** per timbratura rapida al banco
+- QR Code personale per timbratura rapida al banco
 - Carta timbri digitale con animazioni
-- **Livelli fedeltà** Bronze 🥉 / Silver 🥈 / Gold 🥇
+- Livelli fedeltà Bronze / Silver / Gold
 - Storico premi con livello associato
 - Form per lasciare recensione (post-premio)
 - Google Wallet integration
 - Notifiche push via Firebase FCM
 
-### Pannello Admin
-- **Dashboard Analytics** — KPI animate, grafici timbri settimanali, donut stato carte, clienti mensili, distribuzione livelli
-- **Gestione Clienti** — tabella con ricerca, livello, timbra/premio con popup conferma, confetti al completamento
-- **QR Scanner** — scansione QR del cliente per timbratura istantanea
-- **Gestione Recensioni** — approvazione, rifiuto, eliminazione
-- **Notifiche Push** — invio manuale + toggle notifiche automatiche (benvenuto, nuovo timbro, premio, promemoria inattività)
-- **Impostazioni complete** — info attività, colori brand live, font, carta fedeltà (timbri, premi), livelli con premi personalizzabili, password admin
-- **Sezione Prenoty** (solo abbonati) — calendario, prenotazioni, statistiche
+### Pannello Admin (✅ prototipo completato)
+- Dashboard Analytics — 4 KPI animate con change %, grafici timbri settimanali, donut stato carte, clienti mensili, distribuzione livelli
+- Gestione Clienti — tabella con barra timbri visuale, badge livello, ricerca, timbra/premio con popup conferma
+- QR Scanner — viewport con scan line animata, corner markers, scansione istantanea
+- Gestione Recensioni — filtri (tutte/in attesa/approvate), approvazione/eliminazione
+- Notifiche Push — invio manuale + toggle notifiche automatiche
+- Impostazioni complete — 5 sezioni: info attività, colori brand live, carta fedeltà, livelli, sicurezza
+- Sezione Prenoty (solo abbonati) — calendario, prenotazioni, statistiche
 
 ### Personalizzazione Autonoma
-Ogni negoziante dal pannello admin personalizza in autonomia:
+Ogni negoziante personalizza in autonomia dal pannello admin:
 - Logo e foto del negozio
-- Colori brand (primario, accento)
+- Colori brand (primario, accento) con color picker live
 - Nome, tipo e descrizione attività
 - Servizi con prezzi
 - Operatori / team
 - Orari di apertura
-- Contatti (indirizzo, telefono, email)
-- Impostazioni carta fedeltà
-- Livelli e premi per livello
+- Contatti
+- Impostazioni carta fedeltà e livelli
 
 ### Super Admin Panel
 - Metriche piattaforma globali (negozi, abbonati, MRR, utenti)
@@ -78,10 +94,10 @@ Ogni negoziante dal pannello admin personalizza in autonomia:
 
 | Layer | Tecnologia |
 |---|---|
-| **Frontend** | HTML + CSS + JavaScript puro (single-file) |
-| **Backend** | Da definire (API REST per comunicare con DB) |
+| **Frontend** | HTML + CSS + JavaScript puro |
+| **Backend** | Da definire (API REST) |
 | **Database** | PostgreSQL su DigitalOcean (condiviso con Prenoty) |
-| **Hosting** | DigitalOcean (App Platform / Droplet) |
+| **Hosting** | DigitalOcean |
 | **Notifiche** | Firebase Cloud Messaging (FCM) — gratuito |
 | **Wallet** | Google Wallet API — gratuito |
 | **Pagamenti** | Stripe |
@@ -93,102 +109,60 @@ Ogni negoziante dal pannello admin personalizza in autonomia:
 
 ```
 carta-fedelta-2.0/
-├── index.html              # Frontend completo (single-file, prototipo attuale)
-├── README.md               # Questo file
-├── TODO.md                 # Piano di sviluppo dettagliato
-├── api/                    # Backend API (da implementare)
-│   ├── server.js           # Entry point
+├── README.md                        # Questo file
+├── TODO.md                          # Piano di sviluppo dettagliato (12 fasi)
+├── prototypes/
+│   ├── admin-panel-v2.html          # ✅ Pannello admin (stile Shadcn, funzionante)
+│   └── carta-fedelta-2.0-full.html  # Prototipo completo v1 (da rifare con nuovo stile)
+├── api/                             # Backend API (da implementare — Fase 1)
+│   ├── server.js
 │   ├── routes/
-│   │   ├── auth.js         # Login, registrazione, sessioni
-│   │   ├── shops.js        # CRUD negozi, config, personalizzazione
-│   │   ├── clients.js      # CRUD clienti, timbri, premi
-│   │   ├── reviews.js      # CRUD recensioni
-│   │   ├── notifications.js # FCM push notifications
-│   │   ├── wallet.js       # Google Wallet pass
-│   │   ├── stripe.js       # Billing e abbonamenti
-│   │   └── superadmin.js   # Gestione piattaforma
 │   ├── middleware/
-│   │   ├── auth.js         # JWT / session auth
-│   │   └── prenoty.js      # Detect negozio Prenoty
 │   ├── db/
-│   │   ├── schema.sql      # Schema PostgreSQL
-│   │   └── migrations/     # Migrazioni DB
+│   │   ├── schema.sql
+│   │   └── migrations/
 │   └── config/
-│       └── firebase.js     # Config FCM
-├── public/                 # Assets statici
-│   └── uploads/            # Loghi, foto negozi
+├── public/
+│   └── uploads/
 └── deploy/
-    └── digitalocean.yml    # Config deploy
+    └── digitalocean.yml
 ```
 
 ---
 
-## 🚀 Getting Started
-
-### Prerequisiti
-- Node.js >= 18
-- PostgreSQL >= 15
-- Account DigitalOcean
-- Account Firebase (per FCM)
-- Account Stripe (per pagamenti)
-- Account Google Cloud (per Wallet API)
-
-### Setup locale
-
-```bash
-# Clone
-git clone https://github.com/tuouser/carta-fedelta-2.0.git
-cd carta-fedelta-2.0
-
-# Installa dipendenze API
-cd api && npm install
-
-# Configura variabili ambiente
-cp .env.example .env
-# Edita .env con le tue credenziali
-
-# Crea schema DB
-psql -U postgres -d cartafedelta -f api/db/schema.sql
-
-# Avvia server dev
-npm run dev
-```
-
-### Variabili Ambiente (.env)
-
-```env
-# Database
-DATABASE_URL=postgresql://user:pass@host:5432/cartafedelta
-
-# Firebase
-FIREBASE_PROJECT_ID=your-project
-FIREBASE_PRIVATE_KEY=...
-FIREBASE_CLIENT_EMAIL=...
-
-# Stripe
-STRIPE_SECRET_KEY=sk_...
-STRIPE_WEBHOOK_SECRET=whsec_...
-
-# Google Wallet
-GOOGLE_WALLET_ISSUER_ID=...
-GOOGLE_WALLET_KEY_FILE=...
-
-# JWT
-JWT_SECRET=your-secret-key
-
-# Prenoty DB (per integrazione)
-PRENOTY_DATABASE_URL=postgresql://user:pass@host:5432/prenoty
-```
-
----
-
-## 🔐 Accessi Demo (prototipo attuale)
+## 🔐 Accessi Demo (prototipi)
 
 | Ruolo | Credenziali |
 |---|---|
-| **Cliente** | Telefono: `+39 333 1111111` (o qualsiasi demo) |
+| **Cliente** | Telefono: `+39 333 111 1111` |
 | **Admin** | Password: `admin123` |
-| **Super Admin** | Password: `super123` oppure telefono: `super` |
+| **Super Admin** | Password: `super123` |
+
+---
+
+## 📦 Stato Sviluppo
+
+| Fase | Descrizione | Stato |
+|---|---|---|
+| 0 | Setup progetto e architettura | ⬜ Da fare |
+| 1 | Infrastruttura base (API, DB, multi-tenant) | ⬜ Da fare |
+| 2 | QR Code timbratura | ⬜ Da fare (prototipo FE pronto) |
+| 3 | Sistema recensioni | ⬜ Da fare (prototipo FE pronto) |
+| 4 | Multi-lingua | ⬜ Da fare |
+| 5 | Livelli fedeltà | ⬜ Da fare (prototipo FE pronto) |
+| 6 | Prenotazione rapida (Prenoty) | ⬜ Da fare |
+| 7 | Super Admin Panel | ⬜ Da fare |
+| 8 | Stripe / Pagamenti | ⬜ Da fare |
+| 9 | Firebase FCM | ⬜ Da fare |
+| 10 | Google Wallet | ⬜ Da fare |
+| 11 | Deploy | ⬜ Da fare |
+| 12 | Polish e ottimizzazioni | ⬜ Da fare |
+
+### Prototipi Frontend completati:
+- ✅ Admin Panel v2 (stile Shadcn — `prototypes/admin-panel-v2.html`)
+- 🔄 Sito Vetrina (da rifare con stesso stile dell'admin)
+- 🔄 Area Cliente (da rifare con stesso stile)
+- 🔄 Super Admin Panel (da rifare con stesso stile)
 
 ---
 
